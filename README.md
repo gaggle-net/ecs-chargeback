@@ -3,7 +3,6 @@ This application runs as a lambda function that is run periodically via CloudWat
 
 ![](overview.png)
 
-
 For each service, the following metrics are calculated:
 
 * `cpu_reservation` - sum of CPU reservation across all containers and tasks for the service.
@@ -11,8 +10,9 @@ For each service, the following metrics are calculated:
 * `hourly_cost` - hourly cost for the service as calculated by current blended rate of EC2 instances in the cluster and service cpu and memory reservations.
 * `hourly_waste` - hourly wasted cost for the service as calculated by current blended rate of EC2 instances in the cluster and service cpu and memory reservations along with the actual cpu and memory utilization.
 
-# CLI
-To run locally, run `./ecs_chargeback/main.py`
+The metrics can be used to generate dashboard like the one below:
+
+![](sample-dashboard.png)
 
 # Deploy
 You must first create a [Datadog API Key](https://app.datadoghq.com/organization-settings/api-keys) and store it in AWS Secret Manager. The default is to look for a secret named `datadog` with the API key stored in the field `api_key`.
@@ -28,3 +28,6 @@ Next you can deploy with [AWS CDK 2](https://docs.aws.amazon.com/cdk/v2/guide/) 
  chargeback:datadog-api-key-secret-id | ID of AWS Secret that contains the DataDog api key | `datadog`
  chargeback:datadog-api-key-secret-field | Name of field in the secret that contains the api_key | `api_key` 
 
+
+# CLI
+To run locally, run `./ecs_chargeback/main.py`
