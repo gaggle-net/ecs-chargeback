@@ -80,9 +80,7 @@ class ChargebackStack(cdk.Stack):
         rule = aws_events.Rule(
             self,
             "ChargebackHandlerRule",
-            schedule=aws_events.Schedule.rate(
-                cdk.Duration.minutes(run_frequency_mins)
-            ),
+            schedule=aws_events.Schedule.rate(cdk.Duration.minutes(run_frequency_mins)),
         )
         rule.add_target(aws_events_targets.LambdaFunction(chargeback))
 

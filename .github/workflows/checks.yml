@@ -20,4 +20,4 @@ jobs:
     - name: lint
       run: |
         pip install black
-        black .
+        black --check .
