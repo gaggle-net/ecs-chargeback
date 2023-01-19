@@ -36,10 +36,23 @@ class Cluster:
                         taskDefinition=ecs_service["taskDefinition"]
                     )["taskDefinition"]
 
-                    cpu, memory = 0, 0
+                    task_cpu = int(task_definition.get("cpu", 0))
+                    task_memory = int(task_definition.get("memory", 0))
+
+                    container_cpu, container_memory = 0, 0
                     for container in task_definition["containerDefinitions"]:
-                        cpu += container["cpu"]
-                        memory += container["memory"]
+                        container_cpu += int(container.get("cpu", 0))
+                        container_memory += int(container.get("memory", 0))
+
+                    if task_cpu and task_cpu >= container_cpu:
+                        cpu = task_cpu
+                    else:
+                        cpu = container_cpu
+
+                    if task_memory and task_memory >= container_memory:
+                        memory = task_memory
+                    else:
+                        memory = container_memory
 
                     tags = []
                     try:
