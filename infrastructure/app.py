@@ -11,6 +11,7 @@ from aws_cdk import (
     aws_s3,
     aws_iam,
 )
+from gaggle_cdk.core import apply_permissions_boundary
 
 base_path = dirname(dirname(abspath(__file__)))
 
@@ -46,7 +47,7 @@ class ChargebackStack(cdk.Stack):
             self,
             "ChargebackHandler",
             entry=join(base_path, "ecs_chargeback"),
-            runtime=aws_lambda.Runtime.PYTHON_3_7,
+            runtime=aws_lambda.Runtime.PYTHON_3_8,
             index="lambda.py",
             handler="handler",
             environment={
@@ -105,5 +106,7 @@ ChargebackStack(
         region=os.environ["CDK_DEFAULT_REGION"],
     ),
 )
+
+apply_permissions_boundary(app)
 
 app.synth()
