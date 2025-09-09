@@ -4,7 +4,6 @@ from os.path import join, dirname, abspath
 import aws_cdk as cdk
 from constructs import Construct
 from aws_cdk import (
-    aws_lambda_python_alpha as aws_lambda_python,
     aws_lambda,
     aws_events,
     aws_events_targets,
@@ -15,6 +14,7 @@ from gaggle_cdk.core import apply_permissions_boundary
 
 base_path = dirname(dirname(abspath(__file__)))
 
+app_name = 'ecs-chargeback'
 
 class ChargebackStack(cdk.Stack):
     def __init__(
@@ -43,13 +43,13 @@ class ChargebackStack(cdk.Stack):
             json_field=dd_api_key_secret_field,
         )
 
-        chargeback = aws_lambda_python.PythonFunction(
+        chargeback = aws_lambda.Function(
             self,
             "ChargebackHandler",
-            entry=join(base_path, "ecs_chargeback"),
             runtime=aws_lambda.Runtime.PYTHON_3_11,
-            index="lambda.py",
-            handler="handler",
+            function_name=app_name,
+            code=aws_lambda.Code.from_asset('../ecs_chargeback/'),
+            handler='lambda.handler',
             environment={
                 "CLUSTER_TAG": cluster_tag,
                 "CACHE_BUCKET": cache_bucket.bucket_name,
@@ -60,6 +60,7 @@ class ChargebackStack(cdk.Stack):
             },
             timeout=cdk.Duration.seconds(60),
         )
+
         chargeback.add_to_role_policy(
             aws_iam.PolicyStatement(
                 actions=[
