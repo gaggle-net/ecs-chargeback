@@ -47,7 +47,7 @@ class ChargebackStack(cdk.Stack):
             self,
             "ChargebackHandler",
             entry=join(base_path, "ecs_chargeback"),
-            runtime=aws_lambda.Runtime.PYTHON_3_8,
+            runtime=aws_lambda.Runtime.PYTHON_3_11,
             index="lambda.py",
             handler="handler",
             environment={
