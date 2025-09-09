@@ -1,26 +1,34 @@
 #!/usr/bin/env python3
 import os
-from os.path import join, dirname, abspath
-import aws_cdk as cdk
-from constructs import Construct
+
 from aws_cdk import (
     aws_lambda,
     aws_events,
     aws_events_targets,
     aws_s3,
     aws_iam,
+    App,
+    Duration,
+    Environment,
+    SecretValue,
+    Stack
 )
+from os.path import join, dirname, abspath
+from constructs import Construct
 from gaggle_cdk.core import apply_permissions_boundary
+from gaggle_cdk.core.tagging import GaggleTags
+from gaggle_cdk.core.teams import GaggleTeam
 
 base_path = dirname(dirname(abspath(__file__)))
 
 app_name = 'ecs-chargeback'
 
-class ChargebackStack(cdk.Stack):
+class ChargebackStack(Stack):
     def __init__(
         self,
         scope: Construct,
         id: str,
+        environment: str,
         cluster_tag: str,
         run_frequency_mins: int,
         cost_lookback_days: int,
@@ -38,7 +46,7 @@ class ChargebackStack(cdk.Stack):
             bucket_name=bucket_name,
         )
 
-        datadog_api_key = cdk.SecretValue.secrets_manager(
+        datadog_api_key = SecretValue.secrets_manager(
             secret_id=dd_api_key_secret_id,
             json_field=dd_api_key_secret_field,
         )
@@ -46,7 +54,7 @@ class ChargebackStack(cdk.Stack):
         chargeback = aws_lambda.Function(
             self,
             "ChargebackHandler",
-            runtime=aws_lambda.Runtime.PYTHON_3_11,
+            runtime=aws_lambda.Runtime.PYTHON_3_13,
             function_name=app_name,
             code=aws_lambda.Code.from_asset('../ecs_chargeback/'),
             handler='lambda.handler',
@@ -58,7 +66,7 @@ class ChargebackStack(cdk.Stack):
                 "DATADOG_API_KEY": datadog_api_key.to_string(),
                 "DATADOG_METRIC_PREFIX": datadog_metric_prefix,
             },
-            timeout=cdk.Duration.seconds(60),
+            timeout=Duration.seconds(60),
         )
 
         chargeback.add_to_role_policy(
@@ -82,15 +90,23 @@ class ChargebackStack(cdk.Stack):
         rule = aws_events.Rule(
             self,
             "ChargebackHandlerRule",
-            schedule=aws_events.Schedule.rate(cdk.Duration.minutes(run_frequency_mins)),
+            schedule=aws_events.Schedule.rate(Duration.minutes(run_frequency_mins)),
         )
         rule.add_target(aws_events_targets.LambdaFunction(chargeback))
 
+        GaggleTags(
+            application=app_name,
+            environment=environment,
+            team=GaggleTeam.DEVOPS,
+        )
 
-app = cdk.App()
+app = App()
+
+## Production
 ChargebackStack(
     app,
     "ecs-chargeback",
+    environment="production",
     cluster_tag=app.node.try_get_context("chargeback:cluster-tag"),
     bucket_name=app.node.try_get_context("chargetback:bucket-name"),
     run_frequency_mins=int(app.node.try_get_context("chargeback:run-frequency-mins")),
@@ -102,7 +118,7 @@ ChargebackStack(
         "chargeback:datadog-api-key-secret-field"
     ),
     datadog_metric_prefix=app.node.try_get_context("chargeback:datadog-metric-prefix"),
-    env=cdk.Environment(
+    env=Environment(
         account=os.environ["CDK_DEFAULT_ACCOUNT"],
         region=os.environ["CDK_DEFAULT_REGION"],
     ),
