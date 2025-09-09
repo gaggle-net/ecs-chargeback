@@ -1,26 +1,29 @@
 #!/usr/bin/env python3
 import os
 
-from aws_cdk import (
-    App,
-    Environment
-)
-
+from aws_cdk import App, Environment
 from os.path import join, dirname, abspath
-from gaggle_cdk.core import apply_permissions_boundary
+from gaggle_cdk.core import apply_permissions_boundary, GaggleTags
 
 from app_stack import ChargebackStack
 
-base_path = dirname(dirname(abspath(__file__)))
-app_name = 'ecs-chargeback'
-
 app = App()
 
+base_path = dirname(dirname(abspath(__file__)))
+app_name = 'ecs-chargeback'
+environment = app.node.try_get_context("gaggle-cdk:environment")
+account_id = app.node
+
+tags = GaggleTags(
+    application=app_name,
+    environment=environment,
+    team=GaggleTags.Team.DEVOPS
+)
+
 ## Production
-ChargebackStack(
+app_stack = ChargebackStack(
     app,
     "ecs-chargeback",
-    environment="production",
     cluster_tag=app.node.try_get_context("chargeback:cluster-tag"),
     bucket_name=app.node.try_get_context("chargetback:bucket-name"),
     run_frequency_mins=int(app.node.try_get_context("chargeback:run-frequency-mins")),
@@ -35,9 +38,10 @@ ChargebackStack(
     env=Environment(
         account=os.environ["CDK_DEFAULT_ACCOUNT"],
         region=os.environ["CDK_DEFAULT_REGION"],
-    ),
+    )
 )
 
-apply_permissions_boundary(app)
+apply_permissions_boundary(app_stack)
+tags.apply(app_stack)
 
 app.synth()
