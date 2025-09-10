@@ -10,8 +10,8 @@ from app_stack import ChargebackStack
 app = App()
 
 base_path = dirname(dirname(abspath(__file__)))
-app_name = 'ecs-chargeback'
-environment = app.node.try_get_context("gaggle-cdk:environment")
+app_name = "ecs-chargeback"
+environment = "production"
 account_id = app.node
 
 tags = GaggleTags(
