@@ -27,6 +27,7 @@ class ChargebackStack(Stack):
         self,
         scope: Construct,
         id: str,
+        *,
         cluster_tag: str,
         run_frequency_mins: int,
         cost_lookback_days: int,
@@ -51,7 +52,7 @@ class ChargebackStack(Stack):
 
         iam_role = aws_iam.Role(
             self,
-            "lambdaRole",
+            "ChargebackLambdaRole",
             assumed_by=aws_iam.ServicePrincipal('lambda.amazonaws.com'),
             managed_policies=[
                 aws_iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AWSLambdaBasicExecutionRole')
