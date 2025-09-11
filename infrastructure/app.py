@@ -14,11 +14,6 @@ app_name = "ecs-chargeback"
 environment = "production"
 account_id = app.node
 
-tags = GaggleTags(
-    application=app_name,
-    environment=environment,
-    team=GaggleTags.Team.DEVOPS
-)
 
 ## Production
 app_stack = ChargebackStack(
@@ -38,10 +33,14 @@ app_stack = ChargebackStack(
     env=Environment(
         account=os.environ["CDK_DEFAULT_ACCOUNT"],
         region=os.environ["CDK_DEFAULT_REGION"],
-    )
+    ),
 )
+GaggleTags(
+    application=app_name,
+    environment=environment,
+    team=GaggleTags.Team.DEVOPS,
+).apply(app_stack)
 
 apply_permissions_boundary(app_stack)
-tags.apply(app_stack)
 
 app.synth()

@@ -20,7 +20,8 @@ from gaggle_cdk.core.teams import GaggleTeam
 
 base_path = dirname(dirname(abspath(__file__)))
 
-app_name = 'ecs-chargeback'
+app_name = "ecs-chargeback"
+
 
 class ChargebackStack(Stack):
     def __init__(
@@ -53,9 +54,11 @@ class ChargebackStack(Stack):
         iam_role = aws_iam.Role(
             self,
             "ChargebackLambdaRole",
-            assumed_by=aws_iam.ServicePrincipal('lambda.amazonaws.com'),
+            assumed_by=aws_iam.ServicePrincipal("lambda.amazonaws.com"),
             managed_policies=[
-                aws_iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AWSLambdaBasicExecutionRole')
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
+                    "service-role/AWSLambdaBasicExecutionRole"
+                )
             ],
             inline_policies={
                 "LambdaPolicy": aws_iam.PolicyDocument(
@@ -76,7 +79,7 @@ class ChargebackStack(Stack):
                         )
                     ]
                 )
-            }
+            },
         )
 
         chargeback = aws_lambda.Function(
@@ -89,12 +92,13 @@ class ChargebackStack(Stack):
                 bundling=BundlingOptions(
                     image=aws_lambda.Runtime.PYTHON_3_13.bundling_image,
                     command=[
-                        "bash", "-c",
-                        "pip install --no-cache -r requirements.txt -t /asset-output && cp -au . /asset-output"
-                    ]
+                        "bash",
+                        "-c",
+                        "pip install --no-cache -r requirements.txt -t /asset-output && cp -au . /asset-output",
+                    ],
                 ),
             ),
-            handler='lambda.handler',
+            handler="lambda.handler",
             environment={
                 "CLUSTER_TAG": cluster_tag,
                 "CACHE_BUCKET": cache_bucket.bucket_name,
