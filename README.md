@@ -15,7 +15,7 @@ The metrics can be used to generate dashboard like the one below:
 ![](sample-dashboard.png)
 
 # Deploy
-You must first create a [Datadog API Key](https://app.datadoghq.com/organization-settings/api-keys) and store it in AWS Secret Manager. The default is to look for a secret named `datadog` with the API key stored in the field `api_key`.
+You must first create a [Datadog API Key](https://app.datadoghq.com/organization-settings/api-keys) and store it in AWS Secret Manager. The default is to look for a secret named `shared-resources/datadog/api-key` with the API key stored in the field `api_key`.
 
 Next you can deploy with [AWS CDK 2](https://docs.aws.amazon.com/cdk/v2/guide/) by running `cdk deploy` from the `infrastructure` directory. The following context variables are available to customize the behavior of this tool:
 
@@ -25,7 +25,7 @@ Next you can deploy with [AWS CDK 2](https://docs.aws.amazon.com/cdk/v2/guide/) 
  chargeback:run-frequency-mins": | How frequently to collect metrics. | `5` 
  chargeback:cost-lookback-days | Number of days to look back for determining current EC2 cost per cluster. | `3` 
  chargeback:datadog-metric-prefix | Prefix to use on DataDog metrics. | `gaggle.ecs.service` 
- chargeback:datadog-api-key-secret-id | ID of AWS Secret that contains the DataDog api key | `datadog`
+ chargeback:datadog-api-key-secret-id | ID of AWS Secret that contains the DataDog api key | `shared-resources/datadog/api-key`
  chargeback:datadog-api-key-secret-field | Name of field in the secret that contains the api_key | `api_key` 
 
 
