@@ -86,7 +86,6 @@ class ChargebackStack(Stack):
             self,
             "ChargebackHandler",
             runtime=aws_lambda.Runtime.PYTHON_3_13,
-            function_name=app_name,
             code=aws_lambda.Code.from_asset(
                 join(base_path, "ecs_chargeback"),
                 bundling=BundlingOptions(
