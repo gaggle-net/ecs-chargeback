@@ -5,7 +5,7 @@
     "chargeback:run-frequency-mins": "5",
     "chargeback:cost-lookback-days": "3",
     "chargeback:datadog-metric-prefix": "gaggle.ecs.service",
-    "chargeback:datadog-api-key-secret-id": "datadog",
+    "chargeback:datadog-api-key-secret-id": "shared-resources/datadog/api-key",
     "chargeback:datadog-api-key-secret-field": "api_key"
   }
 }
